@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The following properties should be set:
+  - ant.project.name: Should always be set to something sensible (will be used in the directories)
+  - version: The current version of the build, e.g. 1.0-SNAPSHOT
+  - releasedir: The directory (on the server) where the releases will be done
+  - project.title: The title that will be shown in the javadoc
+-->
+<project name="fpai.template" default="build">
+	<property name="baseDir" value="${releasedir}/${ant.project.name}/${version}" />
+
+	<!-- TODO: include the appstore again when it is fixed -->
+	<fileset id="build" dir="..">
+		<include name="*/build.xml" />
+		<exclude name="cnf/*" />
+		<exclude name="*appstore*/*" />
+	</fileset>
+
+	<!-- TODO: include the appstore again when it is fixed -->
+	<fileset id="release" dir="..">
+		<include name="*/build.xml" />
+		<exclude name="cnf/*" />
+		<exclude name="*.test/*" />
+		<exclude name="*appstore*/*" />
+	</fileset>
+
+	<target name="echo">
+		<subant target="echo">
+			<fileset refId="build" />
+		</subant>
+	</target>
+	
+	<target name="build">
+		<subant target="build">
+			<fileset refId="build" />
+		</subant>
+	</target>
+
+	<target name="release">
+		<subant target="release">
+			<fileset refId="release" />
+		</subant>
+	</target>
+
+	<target name="coverage-report">
+		<subant target="coverage-report">
+			<fileset refId="build" />
+		</subant>
+	</target>
+
+	<target name="test" depends="build">
+		<subant target="test">
+			<fileset dir="..">
+				<include name="*.test/build.xml" />
+			</fileset>
+		</subant>
+	</target>
+
+	<target name="clean">
+		<delete dir="release" />
+		<mkdir dir="release" />
+		<subant target="clean">
+			<fileset refId="build" />
+		</subant>
+	</target>
+	
+	<target name="checkstyle">
+		<subant target="checkstyle">
+			<fileset refId="build" />
+		</subant>
+	</target>
+
+	<target name="publishrelease" depends="release">
+		
+		<delete dir="${baseDir}/repo" />
+		<mkdir dir="${baseDir}/repo" />
+		<copy todir="${baseDir}/repo">
+			<fileset dir="release" />
+		</copy>
+		
+		<zip basedir=".." destfile="${baseDir}/${ant.project.name}-sources-${version}.zip">
+			<include name="*/src/**"/>
+			<include name="*/test/**"/>
+			<include name="*/res/**"/>
+			<include name="*/*.bnd"/>
+			<include name="*/build*.xml"/>
+			<include name="cnf/**"/>
+			
+			<exclude name="cnf/cache/**"/>
+			<exclude name="cnf/tools/**"/>
+			<exclude name="cnf/release/**"/>
+			<!-- TODO: skip the appstore -->
+			<exclude name="flexiblepower.appstore.*/**"/>
+		</zip>
+		
+		<zip basedir="release" destfile="${baseDir}/${ant.project.name}-bundles-${version}.zip">
+			<include name="**" />
+		</zip>
+	</target>
+	
+	<target name="publishjavadoc">
+		<delete dir="${baseDir}/javadoc" />
+		<mkdir dir="${baseDir}/javadoc" />
+		<javadoc encoding="UTF-8" destdir="${baseDir}/javadoc" windowtitle="${project.title}">
+			<classpath location="../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
+			<fileset dir="..">
+				<include name="*api/**/*.java" />
+				<include name="*api.ext/**/*.java" />
+				<exclude name="*.test/*" />
+				<exclude name="**/*Test.java" />
+			</fileset>
+		</javadoc>
+	</target>
+</project>
