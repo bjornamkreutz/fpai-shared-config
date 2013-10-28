@@ -7,19 +7,19 @@
 -->
 <project name="fpai.template" default="build">
 	<property name="releasedir" value="/var/www/html/releases" />
-	<property name="baseDir" value="${releasedir}/${ant.project.name}/${version}" />
+	<property name="baseDir" value="${releasedir}/${ant.project.name}" />
 
 	<!-- TODO: include the appstore again when it is fixed -->
 	<fileset id="build" dir="..">
 		<include name="*/build.xml" />
-		<exclude name="cnf/*" />
+		<exclude name="cnf*/*" />
 		<exclude name="*appstore*/*" />
 	</fileset>
 
 	<!-- TODO: include the appstore again when it is fixed -->
 	<fileset id="release" dir="..">
 		<include name="*/build.xml" />
-		<exclude name="cnf/*" />
+		<exclude name="cnf*/*" />
 		<exclude name="*.test/*" />
 		<exclude name="*appstore*/*" />
 	</fileset>
@@ -71,13 +71,13 @@
 	</target>
 
 	<target name="publishrelease" depends="release">
-		<delete dir="${baseDir}/repo" />
-		<mkdir dir="${baseDir}/repo" />
-		<copy todir="${baseDir}/repo">
+		<delete dir="${baseDir}/${version}/repo" />
+		<mkdir dir="${baseDir}/${version}/repo" />
+		<copy todir="${baseDir}/${version}/repo">
 			<fileset dir="release" />
 		</copy>
 		
-		<zip basedir=".." destfile="${baseDir}/${ant.project.name}-sources-${version}.zip">
+		<zip basedir=".." destfile="${baseDir}/${version}/${ant.project.name}-sources-${version}.zip">
 			<include name="*/src/**"/>
 			<include name="*/test/**"/>
 			<include name="*/res/**"/>
@@ -92,23 +92,39 @@
 			<exclude name="flexiblepower.appstore.*/**"/>
 		</zip>
 		
-		<zip basedir="release" destfile="${baseDir}/${ant.project.name}-bundles-${version}.zip">
+		<zip basedir="release" destfile="${baseDir}/${version}/${ant.project.name}-bundles-${version}.zip">
 			<include name="**" />
 		</zip>
 	</target>
 	
+	<fileset dir=".." id="javadoc_files">
+		<include name="*.api*/**/*.java" />
+		<exclude name="*.test/*" />
+		<exclude name="**/*Test.java" />
+	</fileset>
+	
 	<target name="publishjavadoc">
-		<delete dir="${baseDir}/javadoc" />
-		<mkdir dir="${baseDir}/javadoc" />
-		<javadoc encoding="UTF-8" destdir="${baseDir}/javadoc" windowtitle="${project.title}">
+		<delete dir="${baseDir}/${version}/javadoc" />
+		<mkdir dir="${baseDir}/${version}/javadoc" />
+		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
 			<classpath location="../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
-			<fileset dir="..">
-				<include name="*api/**/*.java" />
-				<include name="*api.ext/**/*.java" />
-				<exclude name="*.test/*" />
-				<exclude name="**/*Test.java" />
-			</fileset>
 		</javadoc>
 	</target>
+	
+	<target name="distribute">
+		<delete dir="release" />
+		<mkdir dir="release" />
+		
+		<subant target="distribute" inheritall="true">
+			<fileset refId="build" />
+		</subant>
+		<subant target="test" inheritall="true">
+			<fileset dir="..">
+				<include name="*.test/build.xml" />
+			</fileset>
+		</subant>
+			
+		<antcall target="publishrelease" />
+		<antcall target="publishjavadoc" />
+	</target>
 </project>
-

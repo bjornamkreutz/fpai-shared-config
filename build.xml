@@ -32,7 +32,6 @@
 		</cobertura-instrument>
 	</target>
 
-
 	<target name="test-coverage" depends="check,compileTests,instrument" if="testdirpresent">
 		<junit fork="yes" dir="${basedir}">
 			<classpath path="${instrumented.dir}" />
@@ -71,5 +70,9 @@
 			<formatter type="xml" toFile="${basedir}/generated/checkstyle_errors.xml"/>
 		</checkstyle>
 	</target>
+	
+	<target name="distribute" depends="clean, release, coverage-report, checkstyle">
+	</target>
+	
 </project>
 
