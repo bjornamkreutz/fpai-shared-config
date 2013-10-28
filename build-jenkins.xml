@@ -2,7 +2,7 @@
 <!--
   The following properties should be set:
   - ant.project.name: Should always be set to something sensible (will be used in the directories)
-  - version: The current version of the build, e.g. 1.0-SNAPSHOT
+  - targetversion: The current version of the build, e.g. 13.10
   - project.title: The title that will be shown in the javadoc
 -->
 <project name="fpai.template" default="build">
@@ -115,7 +115,7 @@
 		<delete dir="release" />
 		<mkdir dir="release" />
 		
-		<subant target="distribute" inheritall="true">
+		<subant target="distribute">
 			<fileset refId="build" />
 		</subant>
 		<subant target="test" inheritall="true">
@@ -126,5 +126,20 @@
 			
 		<antcall target="publishrelease" />
 		<antcall target="publishjavadoc" />
+	</target>
+	
+	<target name="snapshot">
+		<property name="version" value="${targetversion}-SNAPSHOT" />
+		<antcall target="distribute" />
+	</target>
+
+	<target name="nightly">
+		<property name="version" value="${targetversion}-${DSTAMP}-NIGHTLY" />
+		<antcall target="distribute" />
+	</target>
+
+	<target name="really-do-release">
+		<property name="version" value="${targetversion}" />
+		<antcall target="distribute" />
 	</target>
 </project>
