@@ -3,10 +3,10 @@
   The following properties should be set:
   - ant.project.name: Should always be set to something sensible (will be used in the directories)
   - version: The current version of the build, e.g. 1.0-SNAPSHOT
-  - releasedir: The directory (on the server) where the releases will be done
   - project.title: The title that will be shown in the javadoc
 -->
 <project name="fpai.template" default="build">
+	<property name="releasedir" value="/var/www/html/releases" />
 	<property name="baseDir" value="${releasedir}/${ant.project.name}/${version}" />
 
 	<!-- TODO: include the appstore again when it is fixed -->
@@ -71,7 +71,6 @@
 	</target>
 
 	<target name="publishrelease" depends="release">
-		
 		<delete dir="${baseDir}/repo" />
 		<mkdir dir="${baseDir}/repo" />
 		<copy todir="${baseDir}/repo">
@@ -112,3 +111,4 @@
 		</javadoc>
 	</target>
 </project>
+

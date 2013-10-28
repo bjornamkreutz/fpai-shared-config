@@ -71,5 +71,5 @@
 			<formatter type="xml" toFile="${basedir}/generated/checkstyle_errors.xml"/>
 		</checkstyle>
 	</target>
-
 </project>
+

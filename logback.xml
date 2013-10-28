@@ -5,7 +5,7 @@
         </encoder>
     </appender>
     <logger name="org.flexiblepower.runtime.ui" level="TRACE" />
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

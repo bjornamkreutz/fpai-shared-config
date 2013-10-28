@@ -14,8 +14,8 @@ default-buildpath: \
 	osgi.cmpn;version="[4.3,5.0)",\
 	slf4j.api;version="[1.7,2.0)"
 	
-Bundle-Category: FlexiblePower Application Infrastructure
 Bundle-Vendor: TNO
 Include-Resource: res, ../cnf.shared/LICENSE.txt
 Bundle-Copyright: Copyright Flexiblepower Alliance Network (FAN) 2013
 Bundle-License: Apache License, Version 2.0
+
