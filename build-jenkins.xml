@@ -102,8 +102,9 @@
 		<exclude name="*.test/*" />
 		<exclude name="**/*Test.java" />
 	</fileset>
+	<pathconvert refid="javadoc_files" property="fileset.notempty" setonempty="false" />
 	
-	<target name="publishjavadoc">
+	<target name="publishjavadoc" if="fileset.notempty">
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
