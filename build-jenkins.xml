@@ -117,7 +117,7 @@
 		<delete dir="../cnf/cache" />
 		<mkdir dir="../cnf/cache" />
 		
-		<subant target="distribute">
+		<subant target="distribute" inheritall="true">
 			<fileset refId="build" />
 		</subant>
 		<subant target="test" inheritall="true">

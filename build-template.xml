@@ -58,7 +58,7 @@
 	<!--
 	     Test
 	-->
-	<target name="test" depends="compile">
+	<target name="test" depends="build">
 		<bndtest/>
 	</target>
 
