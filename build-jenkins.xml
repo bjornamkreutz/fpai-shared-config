@@ -83,11 +83,11 @@
 			<include name="*/res/**"/>
 			<include name="*/*.bnd"/>
 			<include name="*/build*.xml"/>
-			<include name="cnf/**"/>
+			<include name="cnf*/**"/>
 			
-			<exclude name="cnf/cache/**"/>
-			<exclude name="cnf/tools/**"/>
-			<exclude name="cnf/release/**"/>
+			<exclude name="cnf*/cache/**"/>
+			<exclude name="cnf*/tools/**"/>
+			<exclude name="cnf*/release/**"/>
 			<!-- TODO: skip the appstore -->
 			<exclude name="flexiblepower.appstore.*/**"/>
 		</zip>
@@ -107,13 +107,15 @@
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
-			<classpath location="../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
+			<classpath location="${baseDir}/../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
 		</javadoc>
 	</target>
 	
 	<target name="distribute">
-		<delete dir="release" />
-		<mkdir dir="release" />
+		<delete dir="../cnf/release" />
+		<mkdir dir="../cnf/release" />
+		<delete dir="../cnf/cache" />
+		<mkdir dir="../cnf/cache" />
 		
 		<subant target="distribute">
 			<fileset refId="build" />
