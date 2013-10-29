@@ -117,10 +117,10 @@
 		<delete dir="../cnf/cache" />
 		<mkdir dir="../cnf/cache" />
 		
-		<subant target="distribute" inheritall="true">
+		<subant target="distribute">
 			<fileset refId="build" />
 		</subant>
-		<subant target="test" inheritall="true">
+		<subant target="test">
 			<fileset dir="..">
 				<include name="*.test/build.xml" />
 			</fileset>
