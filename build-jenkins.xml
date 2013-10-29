@@ -122,7 +122,7 @@
 		<mkdir dir="${felix}/base_bundles" />
 		<mkdir dir="${felix}/fpai_bundles" />
 		
-		<get dest="${felix}/base_bundles" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
+		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
 		<antcall target="downloadRepo">
 			<param name="baseUrl" value="http://openemf.labsgn.tno.nl/ext-repo"/>
 			<param name="targetDir" value="${felix}/base_bundles"/>
