@@ -108,6 +108,7 @@
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
 			<classpath location="${baseDir}/../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
+			<fileset refid="javadoc_files" />
 		</javadoc>
 	</target>
 	
