@@ -4,6 +4,7 @@
   - ant.project.name: Should always be set to something sensible (will be used in the directories)
   - targetversion: The current version of the build, e.g. 13.10
   - project.title: The title that will be shown in the javadoc
+  - deployment-repos: An optional list of repositories that will be used to create the deployment
 -->
 <project name="fpai.template" default="build">
 	<property name="releasedir" value="/var/www/html/releases" />
@@ -112,6 +113,89 @@
 			<fileset refid="javadoc_files" />
 		</javadoc>
 	</target>
+
+	<target name="deployment" depends="release" if="deployment-repos">
+		<property name="felix" value="felix" />
+		<delete dir="${felix}" />
+		<mkdir dir="${felix}" />
+		<mkdir dir="${felix}/etc" />
+		<mkdir dir="${felix}/base_bundles" />
+		<mkdir dir="${felix}/fpai_bundles" />
+		
+		<get dest="${felix}/base_bundles" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
+		<antcall target="downloadRepo">
+			<param name="baseUrl" value="http://openemf.labsgn.tno.nl/ext-repo"/>
+			<param name="targetDir" value="${felix}/base_bundles"/>
+			<param name="gzipped" value="true"/>
+		</antcall>
+
+		<foreach list="${deployment-repos}" delimiter="," param="baseUrl" target="downloadRepo">
+			<param name="targetDir" value="${felix}/fpai_bundles"/>
+		</foreach>
+		
+		<copy todir="${felix}/fpai_bundles" flatten="true">
+			<fileset dir="${felix}/../release/">
+				<include name="*/*.jar"/>
+			</fileset>
+		</copy>
+
+		<!-- copy the configuration -->
+		<copy todir="${felix}/etc">
+			<fileset dir="${felix}/../deployment" />
+		</copy>
+		
+		<echo file="${felix}/run.bat">
+@echo off
+title ${project.title}
+echo ${project.title}
+echo Running from %CD%
+
+start "${project.title}" java ^
+      -Djava.security.policy=etc/all.policy ^
+      -Dfelix.config.properties=file:etc/config.properties ^
+      -Dfelix.cm.dir="%CD%\config" ^
+      -Dlogback.configurationFile=./etc/logback.xml ^
+      -jar base_bundles/org.apache.felix.main-4.2.1.jar
+		</echo>
+		
+		<zip basedir="${felix}" destfile="${baseDir}/${version}/${ant.project.name}-felix-runtime-${version}.zip">
+			<include name="**" />
+		</zip>
+	</target>
+	
+	<taskdef classpath="../cnf.shared/bnd/ant-contrib-1.0b3.jar" resource="net/sf/antcontrib/antlib.xml" />
+	
+	<target name="downloadRepo">
+		<if>
+			<equals arg1="${gzipped}" arg2="true"/>
+			<then>
+				<get src="${baseUrl}/index.xml.gz" dest="${targetDir}" />
+				<gunzip src="${targetDir}/index.xml.gz"/>
+				<delete file="${targetDir}/index.xml.gz"/>
+			</then>
+			<else>
+				<get src="${baseUrl}/index.xml" dest="${targetDir}" />
+			</else>
+		</if>
+		
+		<loadfile srcfile="${targetDir}/index.xml" property="urls">
+			<filterchain>
+				<linecontainsregexp>
+					<regexp pattern="attribute name='url'" />
+				</linecontainsregexp>
+				<replaceregex pattern=".*value='(.+)'.*" replace="\1"/>
+				<suffixlines suffix=","/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<delete file="${targetDir}/index.xml" />
+
+		<foreach list="${urls}" delimiter="," param="file" target="download" />
+	</target>
+		
+	<target name="download">
+		<get dest="${targetDir}" src="${baseUrl}/${file}" />
+	</target>
 	
 	<target name="distribute">
 		<delete dir="../cnf/release" />
@@ -130,6 +214,7 @@
 			
 		<antcall target="publishrelease" />
 		<antcall target="publishjavadoc" />
+		<antcall target="deployment" />
 	</target>
 	
 	<target name="snapshot">
