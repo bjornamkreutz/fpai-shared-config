@@ -169,12 +169,12 @@ start "${project.title}" java ^
 		<if>
 			<equals arg1="${gzipped}" arg2="true"/>
 			<then>
-				<get src="${baseUrl}/index.xml.gz" dest="${targetDir}" />
+				<get src="${baseUrl}/index.xml.gz" dest="${targetDir}/index.xml.gz" />
 				<gunzip src="${targetDir}/index.xml.gz"/>
 				<delete file="${targetDir}/index.xml.gz"/>
 			</then>
 			<else>
-				<get src="${baseUrl}/index.xml" dest="${targetDir}" />
+				<get src="${baseUrl}/index.xml" dest="${targetDir}/index.xml" />
 			</else>
 		</if>
 		
@@ -194,7 +194,7 @@ start "${project.title}" java ^
 	</target>
 		
 	<target name="download">
-		<get dest="${targetDir}" src="${baseUrl}/${file}" />
+		<get dest="${targetDir}/${file}" src="${baseUrl}/${file}" />
 	</target>
 	
 	<target name="distribute">
