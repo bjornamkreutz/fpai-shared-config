@@ -194,7 +194,7 @@ start "${project.title}" java ^
 	</target>
 		
 	<target name="download">
-		<get dest="${targetDir}/${file}" src="${baseUrl}/${file}" />
+		<get dest="${targetDir}" src="${baseUrl}/${file}" />
 	</target>
 	
 	<target name="distribute">
