@@ -124,7 +124,7 @@
 		</javadoc>
 	</target>
 
-	<target name="deployment" depends="checkConfig, release" if="deployment-repos">
+	<target name="deployment" depends="checkConfig, release" if="deployment-needed">
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 		
 		<mkdir dir="${felix}/etc" />
