@@ -134,7 +134,7 @@
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
 		<!-- TODO: the appinfo is broken in the current release? -->
-		<repodownload bndFile="cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
+		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
 
 		<!-- copy the configuration -->
 		<copy todir="${felix}/etc">
