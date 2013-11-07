@@ -136,6 +136,12 @@
 		<!-- TODO: the appinfo is broken in the current release? -->
 		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
 
+		<copy todir="${felix}/fpai_bundles" flatten="true">
+			<fileset dir="${felix}/../release/">
+				<include name="*/*.jar"/>
+			</fileset>
+		</copy>
+		
 		<!-- copy the configuration -->
 		<copy todir="${felix}/etc">
 			<fileset dir="${workspacedir}/cnf/deployment" />
