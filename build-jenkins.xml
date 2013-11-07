@@ -10,15 +10,24 @@
 	<property name="releasedir" value="/var/www/html/releases" />
 	<property name="baseDir" value="${releasedir}/${ant.project.name}" />
 
+	<dirname property="projectdir" file="${ant.file}" />
+	<dirname property="workspacedir" file="${projectdir}" />
+	<taskdef resource="nl/tno/bnd/repodownloader/ant/taskdef.properties" classpath="${workspacedir}/cnf.shared/tools/repo-downloader.jar" />
+
+	<target name="checkConfig">
+		<fail unless="targetversion" message="Missing the 'targetversion' parameter, should the target be called directly?" />
+		<fail unless="project.title" message="Missing the 'project.title' parameter, should the target be called directly?" />
+	</target>
+
 	<!-- TODO: include the appstore again when it is fixed -->
-	<fileset id="build" dir="..">
+	<fileset id="build" dir="${workspacedir}">
 		<include name="*/build.xml" />
 		<exclude name="cnf*/*" />
 		<exclude name="*appstore*/*" />
 	</fileset>
 
 	<!-- TODO: include the appstore again when it is fixed -->
-	<fileset id="release" dir="..">
+	<fileset id="release" dir="${workspacedir}">
 		<include name="*/build.xml" />
 		<exclude name="cnf*/*" />
 		<exclude name="*.test/*" />
@@ -58,8 +67,9 @@
 	</target>
 
 	<target name="clean">
-		<delete dir="release" />
-		<mkdir dir="release" />
+		<delete dir="${workspacedir}/cnf/releae" />
+		<delete dir="${workspacedir}/cnf/felix" />
+		<mkdir dir="${workspacedir}/cnf/release" />
 		<subant target="clean">
 			<fileset refId="build" />
 		</subant>
@@ -78,7 +88,7 @@
 			<fileset dir="release" />
 		</copy>
 		
-		<zip basedir=".." destfile="${baseDir}/${version}/${ant.project.name}-sources-${version}.zip">
+		<zip basedir="${workspacedir}" destfile="${baseDir}/${version}/${ant.project.name}-sources-${version}.zip">
 			<include name="*/src/**"/>
 			<include name="*/test/**"/>
 			<include name="*/res/**"/>
@@ -109,39 +119,26 @@
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
-			<classpath location="${baseDir}/../cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
+			<classpath location="${workspacedir}/cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
 			<fileset refid="javadoc_files" />
 		</javadoc>
 	</target>
 
-	<target name="deployment" depends="release" if="deployment-repos">
-		<property name="felix" value="felix" />
-		<delete dir="${felix}" />
-		<mkdir dir="${felix}" />
+	<target name="deployment" depends="checkConfig, release" if="deployment-repos">
+		<property name="felix" value="${workspacedir}/cnf/felix" />
+		
 		<mkdir dir="${felix}/etc" />
 		<mkdir dir="${felix}/base_bundles" />
 		<mkdir dir="${felix}/fpai_bundles" />
 		
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
-		<antcall target="downloadRepo">
-			<param name="baseUrl" value="http://openemf.labsgn.tno.nl/ext-repo"/>
-			<param name="targetDir" value="${felix}/base_bundles"/>
-			<param name="gzipped" value="true"/>
-		</antcall>
-
-		<foreach list="${deployment-repos}" delimiter="," param="baseUrl" target="downloadRepo">
-			<param name="targetDir" value="${felix}/fpai_bundles"/>
-		</foreach>
-		
-		<copy todir="${felix}/fpai_bundles" flatten="true">
-			<fileset dir="${felix}/../release/">
-				<include name="*/*.jar"/>
-			</fileset>
-		</copy>
+		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
+		<!-- TODO: the appinfo is broken in the current release? -->
+		<repodownload bndFile="cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
 
 		<!-- copy the configuration -->
 		<copy todir="${felix}/etc">
-			<fileset dir="${felix}/../deployment" />
+			<fileset dir="${workspacedir}/cnf/deployment" />
 		</copy>
 		
 		<echo file="${felix}/run.bat">
@@ -154,7 +151,18 @@ start "${project.title}" java ^
       -Djava.security.policy=etc/all.policy ^
       -Dfelix.config.properties=file:etc/config.properties ^
       -Dfelix.cm.dir="%CD%\config" ^
-      -Dlogback.configurationFile=./etc/logback.xml ^
+      -Dlogback.configurationFile=etc/logback.xml ^
+      -jar base_bundles/org.apache.felix.main-4.2.1.jar
+		</echo>
+		<echo file="${felix}/run.sh">
+#!/bin/bash
+echo Running from `pwd`
+
+java \
+      -Djava.security.policy=etc/all.policy \
+      -Dfelix.config.properties=file:etc/config.properties \
+      -Dfelix.cm.dir="`pwd`\config" \
+      -Dlogback.configurationFile=etc/logback.xml \
       -jar base_bundles/org.apache.felix.main-4.2.1.jar
 		</echo>
 		
@@ -163,51 +171,17 @@ start "${project.title}" java ^
 		</zip>
 	</target>
 	
-	<taskdef classpath="../cnf.shared/bnd/ant-contrib-1.0b3.jar" resource="net/sf/antcontrib/antlib.xml" />
-	
-	<target name="downloadRepo">
-		<if>
-			<equals arg1="${gzipped}" arg2="true"/>
-			<then>
-				<get src="${baseUrl}/index.xml.gz" dest="${targetDir}/index.xml.gz" />
-				<gunzip src="${targetDir}/index.xml.gz"/>
-				<delete file="${targetDir}/index.xml.gz"/>
-			</then>
-			<else>
-				<get src="${baseUrl}/index.xml" dest="${targetDir}/index.xml" />
-			</else>
-		</if>
-		
-		<loadfile srcfile="${targetDir}/index.xml" property="urls">
-			<filterchain>
-				<linecontainsregexp>
-					<regexp pattern="attribute name='url'" />
-				</linecontainsregexp>
-				<replaceregex pattern=".*value='(.+)'.*" replace="\1"/>
-				<suffixlines suffix=","/>
-				<striplinebreaks/>
-			</filterchain>
-		</loadfile>
-		<delete file="${targetDir}/index.xml" />
-
-		<foreach list="${urls}" delimiter="," param="file" target="download" />
-	</target>
-		
-	<target name="download">
-		<get dest="${targetDir}" src="${baseUrl}/${file}" />
-	</target>
-	
 	<target name="distribute">
-		<delete dir="../cnf/release" />
-		<mkdir dir="../cnf/release" />
-		<delete dir="../cnf/cache" />
-		<mkdir dir="../cnf/cache" />
+		<delete dir="${workspacedir}/cnf/release" />
+		<mkdir dir="${workspacedir}/cnf/release" />
+		<delete dir="${workspacedir}/cnf/cache" />
+		<mkdir dir="${workspacedir}/cnf/cache" />
 		
 		<subant target="distribute">
 			<fileset refId="build" />
 		</subant>
 		<subant target="test">
-			<fileset dir="..">
+			<fileset dir="${workspacedir}">
 				<include name="*.test/build.xml" />
 			</fileset>
 		</subant>
