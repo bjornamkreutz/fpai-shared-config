@@ -7,7 +7,7 @@
     </target>
 
     <target name="compile" description="Compiles the Task">
-        <javac source="1.6" srcdir="src" destdir="bin" classpath="lib/ant.jar" includeantruntime="false" />
+        <javac source="1.6" target="1.6" srcdir="src" destdir="bin" classpath="lib/ant.jar" includeantruntime="false" />
     	<copy todir="bin">
     		<fileset dir="src">
     			<exclude name="**/*.java"/>
