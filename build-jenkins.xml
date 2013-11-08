@@ -110,7 +110,10 @@
 			<include name="*/build*.xml"/>
 			<include name="cnf*/**"/>
 			
+			<exclude name="cnf*/bnd/**"/>
 			<exclude name="cnf*/cache/**"/>
+			<exclude name="cnf*/felix/**"/>
+			<exclude name="cnf*/lib/**"/>
 			<exclude name="cnf*/tools/**"/>
 			<exclude name="cnf*/release/**"/>
 			<!-- TODO: skip the appstore -->
