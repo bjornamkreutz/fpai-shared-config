@@ -51,7 +51,7 @@
 			<fileset refId="build" />
 		</subant>
 	</target>
-	
+
 	<target name="build" depends="init" unless="build.done">
 		<subant target="build">
 			<fileset refId="build" />
@@ -88,7 +88,7 @@
 			<fileset refId="build" />
 		</subant>
 	</target>
-	
+
 	<target name="checkstyle" depends="build">
 		<subant target="checkstyle">
 			<fileset refId="build" />
@@ -101,7 +101,7 @@
 		<copy todir="${baseDir}/${version}/repo">
 			<fileset dir="release" />
 		</copy>
-		
+
 		<zip basedir="${workspacedir}" destfile="${baseDir}/${version}/${ant.project.name}-sources-${version}.zip">
 			<include name="*/src/**"/>
 			<include name="*/test/**"/>
@@ -109,7 +109,7 @@
 			<include name="*/*.bnd"/>
 			<include name="*/build*.xml"/>
 			<include name="cnf*/**"/>
-			
+
 			<exclude name="cnf*/bnd/**"/>
 			<exclude name="cnf*/cache/**"/>
 			<exclude name="cnf*/felix/**"/>
@@ -119,12 +119,12 @@
 			<!-- TODO: skip the appstore -->
 			<exclude name="flexiblepower.appstore.*/**"/>
 		</zip>
-		
+
 		<zip basedir="release" destfile="${baseDir}/${version}/${ant.project.name}-bundles-${version}.zip">
 			<include name="**" />
 		</zip>
 	</target>
-	
+
 	<target name="publishjavadoc" depends="release" if="fileset.notempty">
 		<fileset dir=".." id="javadoc_files">
 			<include name="*.api*/**/*.java" />
@@ -132,7 +132,7 @@
 			<exclude name="**/*Test.java" />
 		</fileset>
 		<pathconvert refid="javadoc_files" property="fileset.notempty" setonempty="false" />
-	
+
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
@@ -143,11 +143,11 @@
 
 	<target name="deployment" depends="release" if="deployment.present">
 		<property name="felix" value="${workspacedir}/cnf/felix" />
-		
+
 		<mkdir dir="${felix}/etc" />
 		<mkdir dir="${felix}/base_bundles" />
 		<mkdir dir="${felix}/fpai_bundles" />
-		
+
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
 		<!-- TODO: the appinfo is broken in the current release? -->
@@ -158,12 +158,12 @@
 				<include name="*/*.jar"/>
 			</fileset>
 		</copy>
-		
+
 		<!-- copy the configuration -->
 		<copy todir="${felix}/etc">
 			<fileset dir="${workspacedir}/cnf/deployment" />
 		</copy>
-		
+
 		<echo file="${felix}/run.bat">
 @echo off
 title ${project.title}
@@ -188,18 +188,45 @@ java \
       -Dlogback.configurationFile=etc/logback.xml \
       -jar base_bundles/org.apache.felix.main-4.2.1.jar
 		</echo>
-		
+
 		<zip basedir="${felix}" destfile="${baseDir}/${version}/${ant.project.name}-felix-runtime-${version}.zip">
 			<include name="**" />
 		</zip>
 	</target>
-	
+
+	<target name="workspace" depends="init">		
+		<!-- Make repositories local -->
+		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" changeBndFile="true" outDir="${workspacedir}/cnf/repos" full="true" />
+		<!-- Mave bnd files to  -->
+		<mkdir dir="${workspacedir}/cnf/bnd" />
+		<copy todir="${workspacedir}/cnf/bnd">
+			<fileset dir="${workspacedir}/cnf.shared/bnd"/>
+		</copy>
+		<replace file="${workspacedir}/cnf/ext/repositories.bnd" token="cnf.shared" value="cnf"/>
+		
+		<zip basedir=".." destfile="${baseDir}/${version}/${ant.project.name}-eclipse-workspace-${version}.zip">
+			<exclude name="cnf.shared/**" />
+			<exclude name="cnf/cache/**" />
+			<exclude name="cnf/release/**" />
+			<exclude name="*/bin/**" />
+			<exclude name="*/generated/**" />
+			<exclude name="**.git**" />
+			<exclude name=".metadata/**" />
+		</zip>
+		<!-- undo changes -->
+		<delete dir="${workspacedir}/cnf/repos" />
+		<delete dir="${workspacedir}/cnf/bnd" />
+		<delete file="${workspacedir}/cnf/ext/repositories.bnd" />
+		<move file="${workspacedir}/cnf/ext/repositories.bnd.orig" tofile="${workspacedir}/cnf/ext/repositories.bnd" />
+	</target>
+
+
 	<target name="distribute" depends="init">
 		<delete dir="${workspacedir}/cnf/release" />
 		<mkdir dir="${workspacedir}/cnf/release" />
 		<delete dir="${workspacedir}/cnf/cache" />
 		<mkdir dir="${workspacedir}/cnf/cache" />
-		
+
 		<subant target="clean">
 			<fileset refId="build" />
 		</subant>
@@ -214,12 +241,12 @@ java \
 				<include name="*.test/build.xml" />
 			</fileset>
 		</subant>
-			
+
 		<antcall target="publishrelease" />
 		<antcall target="publishjavadoc" />
 		<antcall target="deployment" />
 	</target>
-	
+
 	<target name="snapshot">
 		<property name="version" value="${targetversion}-SNAPSHOT" />
 		<antcall target="distribute" />
