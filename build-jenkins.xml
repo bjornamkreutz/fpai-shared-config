@@ -43,6 +43,12 @@
 
 		<available property="deployment.present" file="${workspacedir}/cnf/deployment/config.properties" />
 
+		<condition property="version" value="${targetversion}-LOCAL">
+			<not>
+				<isset property="version" />
+			</not>
+		</condition>
+
 		<property name="init.done" value="true" />
 	</target>
 
@@ -103,21 +109,21 @@
 		</copy>
 
 		<zip basedir="${workspacedir}" destfile="${baseDir}/${version}/${ant.project.name}-sources-${version}.zip">
-			<include name="*/src/**"/>
-			<include name="*/test/**"/>
-			<include name="*/res/**"/>
-			<include name="*/*.bnd"/>
-			<include name="*/build*.xml"/>
-			<include name="cnf*/**"/>
+			<include name="*/src/**" />
+			<include name="*/test/**" />
+			<include name="*/res/**" />
+			<include name="*/*.bnd" />
+			<include name="*/build*.xml" />
+			<include name="cnf*/**" />
 
-			<exclude name="cnf*/bnd/**"/>
-			<exclude name="cnf*/cache/**"/>
-			<exclude name="cnf*/felix/**"/>
-			<exclude name="cnf*/lib/**"/>
-			<exclude name="cnf*/tools/**"/>
-			<exclude name="cnf*/release/**"/>
+			<exclude name="cnf*/bnd/**" />
+			<exclude name="cnf*/cache/**" />
+			<exclude name="cnf*/felix/**" />
+			<exclude name="cnf*/lib/**" />
+			<exclude name="cnf*/tools/**" />
+			<exclude name="cnf*/release/**" />
 			<!-- TODO: skip the appstore -->
-			<exclude name="flexiblepower.appstore.*/**"/>
+			<exclude name="flexiblepower.appstore.*/**" />
 		</zip>
 
 		<zip basedir="release" destfile="${baseDir}/${version}/${ant.project.name}-bundles-${version}.zip">
@@ -143,7 +149,7 @@
 
 	<target name="deployment-extras">
 	</target>
-	
+
 	<target name="deployment" depends="release" if="deployment.present">
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 
@@ -159,7 +165,7 @@
 
 		<copy todir="${felix}/fpai_bundles" flatten="true">
 			<fileset dir="${felix}/../release/">
-				<include name="*/*.jar"/>
+				<include name="*/*.jar" />
 			</fileset>
 		</copy>
 
@@ -198,31 +204,39 @@ java \
 		</zip>
 	</target>
 
-	<target name="workspace" depends="init">		
-		<!-- Make repositories local -->
-		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" changeBndFile="true" outDir="${workspacedir}/cnf/repos" full="true" />
-		<!-- Mave bnd files to  -->
-		<mkdir dir="${workspacedir}/cnf/bnd" />
-		<copy todir="${workspacedir}/cnf/bnd">
-			<fileset dir="${workspacedir}/cnf.shared/bnd"/>
+	<target name="workspace" depends="init">
+		<!-- Make copy of workspace with relevant files -->
+		<tempfile property="temp.dir" destDir="${java.io.tmpdir}" prefix="build" />
+		<mkdir dir="${temp.dir}" />
+		<copy todir="${temp.dir}">
+			<fileset dir="${workspacedir}">
+				<exclude name="cnf.shared/**" />
+				<exclude name="cnf/cache/**" />
+				<exclude name="cnf/release/**" />
+				<exclude name="*/bin/**" />
+				<exclude name="*/bin_test/**" />
+				<exclude name="*/generated/**" />
+				<exclude name="**.git**" />
+				<exclude name="**coverage.xml" />
+				<exclude name=".metadata/**" />
+			</fileset>
 		</copy>
-		<replace file="${workspacedir}/cnf/ext/repositories.bnd" token="cnf.shared" value="cnf"/>
-		
-		<zip basedir=".." destfile="${baseDir}/${version}/${ant.project.name}-eclipse-workspace-${version}.zip">
-			<exclude name="cnf.shared/**" />
-			<exclude name="cnf/cache/**" />
-			<exclude name="cnf/release/**" />
-			<exclude name="*/bin/**" />
-			<exclude name="*/generated/**" />
-			<exclude name="**.git**" />
-			<exclude name="**coverage.xml" />
-			<exclude name=".metadata/**" />
+
+		<!-- Make repositories local -->
+		<repodownload bndFile="${temp.dir}/cnf/ext/repositories.bnd" changeBndFile="true" outDir="${temp.dir}/cnf/repos" full="true" />
+		<!-- Move bnd files to  -->
+		<mkdir dir="${temp.dir}/cnf/bnd" />
+		<copy todir="${temp.dir}/cnf/bnd">
+			<fileset dir="${workspacedir}/cnf.shared/bnd" />
+		</copy>
+		<replace file="${temp.dir}/cnf/ext/repositories.bnd" token="cnf.shared" value="cnf" />
+		<copy file="${workspacedir}/cnf.shared/LICENSE.txt" todir="${temp.dir}/cnf" />
+		<replace file="${temp.dir}/cnf/build.bnd" token="cnf.shared" value="cnf" />
+
+		<zip basedir="${temp.dir}" destfile="${baseDir}/${version}/${ant.project.name}-eclipse-workspace-${version}.zip">
 		</zip>
 		<!-- undo changes -->
-		<delete dir="${workspacedir}/cnf/repos" />
-		<delete dir="${workspacedir}/cnf/bnd" />
-		<delete file="${workspacedir}/cnf/ext/repositories.bnd" />
-		<move file="${workspacedir}/cnf/ext/repositories.bnd.orig" tofile="${workspacedir}/cnf/ext/repositories.bnd" />
+		<delete dir="${temp.dir}" />
 	</target>
 
 
