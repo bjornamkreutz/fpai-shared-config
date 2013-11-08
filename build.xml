@@ -70,6 +70,6 @@
 		</checkstyle>
 	</target>
 	
-	<target name="distribute" depends="clean, release, coverage-report, checkstyle">
+	<target name="distribute" depends="release, coverage-report, checkstyle">
 	</target>
 </project>

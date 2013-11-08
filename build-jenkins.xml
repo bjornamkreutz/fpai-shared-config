@@ -4,20 +4,10 @@
   - ant.project.name: Should always be set to something sensible (will be used in the directories)
   - targetversion: The current version of the build, e.g. 13.10
   - project.title: The title that will be shown in the javadoc
-  - deployment-repos: An optional list of repositories that will be used to create the deployment
 -->
 <project name="fpai.template" default="build">
-	<property name="releasedir" value="/var/www/html/releases" />
-	<property name="baseDir" value="${releasedir}/${ant.project.name}" />
-
 	<dirname property="projectdir" file="${ant.file}" />
 	<dirname property="workspacedir" file="${projectdir}" />
-	<taskdef resource="nl/tno/bnd/repodownloader/ant/taskdef.properties" classpath="${workspacedir}/cnf.shared/tools/repo-downloader.jar" />
-
-	<target name="checkConfig">
-		<fail unless="targetversion" message="Missing the 'targetversion' parameter, should the target be called directly?" />
-		<fail unless="project.title" message="Missing the 'project.title' parameter, should the target be called directly?" />
-	</target>
 
 	<!-- TODO: include the appstore again when it is fixed -->
 	<fileset id="build" dir="${workspacedir}">
@@ -34,25 +24,49 @@
 		<exclude name="*appstore*/*" />
 	</fileset>
 
-	<target name="echo">
+	<target name="init" unless="init.done">
+		<fail unless="targetversion" message="Missing the 'targetversion' parameter, should the target be called directly?" />
+		<fail unless="project.title" message="Missing the 'project.title' parameter, should the target be called directly?" />
+
+		<condition property="releasedir" value="C:\temp\releases">
+			<os family="windows" />
+		</condition>
+		<condition property="releasedir" value="/var/www/html/releases">
+			<os family="unix" />
+		</condition>
+		<fail unless="releasedir">No release directory can be configured for this OS!</fail>
+
+		<property name="baseDir" value="${releasedir}/${ant.project.name}" />
+
+		<taskdef resource="nl/tno/bnd/repodownloader/ant/taskdef.properties" classpath="${workspacedir}/cnf.shared/tools/repo-downloader.jar" />
+		<tstamp />
+
+		<available property="deployment.present" file="${workspacedir}/cnf/deployment/config.properties" />
+
+		<property name="init.done" value="true" />
+	</target>
+
+	<target name="echo" depends="init">
 		<subant target="echo">
 			<fileset refId="build" />
 		</subant>
 	</target>
 	
-	<target name="build">
+	<target name="build" depends="init" unless="build.done">
 		<subant target="build">
 			<fileset refId="build" />
 		</subant>
+		<property name="build.done" value="true" />
 	</target>
 
-	<target name="release">
+	<target name="release" depends="build" unless="release.done">
 		<subant target="release">
 			<fileset refId="release" />
 		</subant>
+		<property name="release.done" value="true" />
 	</target>
 
-	<target name="coverage-report">
+	<target name="coverage-report" depends="build">
 		<subant target="coverage-report">
 			<fileset refId="build" />
 		</subant>
@@ -66,7 +80,7 @@
 		</subant>
 	</target>
 
-	<target name="clean">
+	<target name="clean" depends="init">
 		<delete dir="${workspacedir}/cnf/releae" />
 		<delete dir="${workspacedir}/cnf/felix" />
 		<mkdir dir="${workspacedir}/cnf/release" />
@@ -75,7 +89,7 @@
 		</subant>
 	</target>
 	
-	<target name="checkstyle">
+	<target name="checkstyle" depends="build">
 		<subant target="checkstyle">
 			<fileset refId="build" />
 		</subant>
@@ -108,14 +122,14 @@
 		</zip>
 	</target>
 	
-	<fileset dir=".." id="javadoc_files">
-		<include name="*.api*/**/*.java" />
-		<exclude name="*.test/*" />
-		<exclude name="**/*Test.java" />
-	</fileset>
-	<pathconvert refid="javadoc_files" property="fileset.notempty" setonempty="false" />
+	<target name="publishjavadoc" depends="release" if="fileset.notempty">
+		<fileset dir=".." id="javadoc_files">
+			<include name="*.api*/**/*.java" />
+			<exclude name="*.test/*" />
+			<exclude name="**/*Test.java" />
+		</fileset>
+		<pathconvert refid="javadoc_files" property="fileset.notempty" setonempty="false" />
 	
-	<target name="publishjavadoc" if="fileset.notempty">
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
@@ -124,7 +138,7 @@
 		</javadoc>
 	</target>
 
-	<target name="deployment" depends="checkConfig, release" if="deployment-needed">
+	<target name="deployment" depends="release" if="deployment.present">
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 		
 		<mkdir dir="${felix}/etc" />
@@ -177,15 +191,21 @@ java \
 		</zip>
 	</target>
 	
-	<target name="distribute">
+	<target name="distribute" depends="init">
 		<delete dir="${workspacedir}/cnf/release" />
 		<mkdir dir="${workspacedir}/cnf/release" />
 		<delete dir="${workspacedir}/cnf/cache" />
 		<mkdir dir="${workspacedir}/cnf/cache" />
 		
+		<subant target="clean">
+			<fileset refId="build" />
+		</subant>
 		<subant target="distribute">
 			<fileset refId="build" />
 		</subant>
+		<property name="build.done" value="true" />
+		<property name="release.done" value="true" />
+
 		<subant target="test">
 			<fileset dir="${workspacedir}">
 				<include name="*.test/build.xml" />
@@ -212,3 +232,4 @@ java \
 		<antcall target="distribute" />
 	</target>
 </project>
+
