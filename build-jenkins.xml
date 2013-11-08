@@ -141,6 +141,9 @@
 		</javadoc>
 	</target>
 
+	<target name="deployment-extras">
+	</target>
+	
 	<target name="deployment" depends="release" if="deployment.present">
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 		
@@ -152,6 +155,7 @@
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
 		<!-- TODO: the appinfo is broken in the current release? -->
 		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
+		<antcall target="deployment-extras" />
 
 		<copy todir="${felix}/fpai_bundles" flatten="true">
 			<fileset dir="${felix}/../release/">
