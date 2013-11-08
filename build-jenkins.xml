@@ -215,6 +215,7 @@ java \
 			<exclude name="*/bin/**" />
 			<exclude name="*/generated/**" />
 			<exclude name="**.git**" />
+			<exclude name="**coverage.xml" />
 			<exclude name=".metadata/**" />
 		</zip>
 		<!-- undo changes -->
