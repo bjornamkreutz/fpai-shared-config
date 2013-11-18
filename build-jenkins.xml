@@ -9,19 +9,15 @@
 	<dirname property="projectdir" file="${ant.file}" />
 	<dirname property="workspacedir" file="${projectdir}" />
 
-	<!-- TODO: include the appstore again when it is fixed -->
 	<fileset id="build" dir="${workspacedir}">
 		<include name="*/build.xml" />
 		<exclude name="cnf*/*" />
-		<exclude name="*appstore*/*" />
 	</fileset>
 
-	<!-- TODO: include the appstore again when it is fixed -->
 	<fileset id="release" dir="${workspacedir}">
 		<include name="*/build.xml" />
 		<exclude name="cnf*/*" />
 		<exclude name="*.test/*" />
-		<exclude name="*appstore*/*" />
 	</fileset>
 
 	<target name="init" unless="init.done">
@@ -122,8 +118,6 @@
 			<exclude name="cnf*/lib/**" />
 			<exclude name="cnf*/tools/**" />
 			<exclude name="cnf*/release/**" />
-			<!-- TODO: skip the appstore -->
-			<exclude name="flexiblepower.appstore.*/**" />
 		</zip>
 
 		<zip basedir="release" destfile="${baseDir}/${version}/${ant.project.name}-bundles-${version}.zip">
@@ -159,8 +153,7 @@
 
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
-		<!-- TODO: the appinfo is broken in the current release? -->
-		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
+		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo" outDir="${felix}/fpai_bundles" full="false" />
 		<antcall target="deployment-extras" />
 
 		<copy todir="${felix}/fpai_bundles" flatten="true">
