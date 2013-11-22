@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,6 +31,10 @@ public class Repo {
         this.indexUrl = indexUrl;
         this.fullRepo = fullRepo;
         this.skip = skip;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void downloadRepo() throws MalformedURLException, IOException {
@@ -60,7 +63,7 @@ public class Repo {
         }
 
         if (fullRepo) {
-            OutputStream indexOut = new GZIPOutputStream(new FileOutputStream(new File(destDir, "index.xml.gz")));
+            OutputStream indexOut = new FileOutputStream(new File(destDir, "index.xml"));
             IOUtils.write(getIndex(), indexOut, Charset.defaultCharset());
             indexOut.close();
             System.out.println("Written index for " + destDir);
