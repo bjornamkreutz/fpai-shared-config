@@ -142,6 +142,10 @@
 	</target>
 
 	<target name="deployment" depends="release" if="deployment.present">
+		<condition property="repositories.skip" value="ui.appinfo|flexiblepower.runtime.simulation">
+			<not><isset property="repositories.skip" /></not>
+		</condition>
+		
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 		
 		<mkdir dir="${felix}/etc" />
@@ -151,7 +155,7 @@
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
 		<!-- TODO: the appinfo is broken in the current release? -->
-		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|ui.appinfo" outDir="${felix}/fpai_bundles" full="false" />
+		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|${repositories.skip}" outDir="${felix}/fpai_bundles" full="false" />
 
 		<copy todir="${felix}/fpai_bundles" flatten="true">
 			<fileset dir="${felix}/../release/">
