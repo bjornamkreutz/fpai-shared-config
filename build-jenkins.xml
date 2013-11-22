@@ -191,10 +191,11 @@ echo Running from `pwd`
 java \
       -Djava.security.policy=etc/all.policy \
       -Dfelix.config.properties=file:etc/config.properties \
-      -Dfelix.cm.dir="`pwd`\config" \
+      -Dfelix.cm.dir="`pwd`/config" \
       -Dlogback.configurationFile=etc/logback.xml \
       -jar base_bundles/org.apache.felix.main-4.2.1.jar
 		</echo>
+		<chmod perm="0755" file="${felix}/run.sh" />
 
 		<zip basedir="${felix}" destfile="${baseDir}/${version}/${ant.project.name}-felix-runtime-${version}.zip">
 			<include name="**" />

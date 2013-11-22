@@ -86,7 +86,7 @@ public class MakeReposLocal extends Task {
                 changeBndFile(repos);
             }
         } catch (IOException e) {
-            throw new BuildException("Error while making repos local", e);
+            throw new BuildException("Error while making repos local: " + e.getMessage(), e);
         }
     }
 
