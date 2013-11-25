@@ -145,7 +145,7 @@
 	</target>
 
 	<target name="deployment" depends="release" if="deployment.present">
-		<condition property="repositories.skip" value="flexiblepower.runtime.simulation">
+		<condition property="repositories.skip" value=".*test.*|flexiblepower.runtime.simulation.*">
 			<not><isset property="repositories.skip" /></not>
 		</condition>
 		
@@ -153,6 +153,7 @@
 
 		<mkdir dir="${felix}/etc" />
 		<mkdir dir="${felix}/base_bundles" />
+		<delete dir="${felix}/fpai_bundles" />
 		<mkdir dir="${felix}/fpai_bundles" />
 
 		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
