@@ -146,9 +146,11 @@
 
 	<target name="deployment" depends="release" if="deployment.present">
 		<condition property="repositories.skip" value=".*test.*|flexiblepower.runtime.simulation.*">
-			<not><isset property="repositories.skip" /></not>
+			<not>
+				<isset property="repositories.skip" />
+			</not>
 		</condition>
-		
+
 		<property name="felix" value="${workspacedir}/cnf/felix" />
 
 		<mkdir dir="${felix}/etc" />
@@ -271,6 +273,7 @@ java \
 	</target>
 
 	<target name="nightly">
+		<tstamp />
 		<property name="version" value="${targetversion}-${DSTAMP}-NIGHTLY" />
 		<antcall target="distribute" />
 	</target>
