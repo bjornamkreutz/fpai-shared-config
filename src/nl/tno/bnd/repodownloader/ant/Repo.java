@@ -85,6 +85,7 @@ public class Repo {
         List<String> res = new ArrayList<String>();
         Pattern pattern = Pattern.compile(".*name='url'.+value='(.*)'.*");
         for (String line : index.split("\n")) {
+            line = line.replace("\r", ""); // In case of windows line endings
             Matcher matcher = pattern.matcher(line);
             if (matcher.matches()) {
                 String relativeUrl = matcher.group(1);
