@@ -80,7 +80,11 @@ public class MakeReposLocal extends Task {
         try {
             List<Repo> repos = getRepos();
             for (Repo r : repos) {
-                r.downloadRepo();
+                try {
+                    r.downloadRepo();
+                } catch (Exception e) {
+                    throw new BuildException("Error while making repo " + r.getName() + " local: " + e.getMessage(), e);
+                }
             }
             if (changeBndFile) {
                 changeBndFile(repos);
