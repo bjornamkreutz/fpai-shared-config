@@ -101,14 +101,15 @@ public class Repo {
     private String getIndex() throws MalformedURLException, IOException {
         if (index == null) {
             URL url = new URL(indexUrl);
-            if (indexUrl.endsWith(".gz")) {
-                // compressed
-                byte[] byteArray = IOUtils.toByteArray(url);
+            // Download file
+            byte[] byteArray = IOUtils.toByteArray(url);
+            try {
+                // Try to unzip the file
                 index = IOUtils.toString(new GZIPInputStream(new ByteArrayInputStream(byteArray)),
                                          Charset.defaultCharset());
-            } else {
-                // not compressed
-                index = IOUtils.toString(url, Charset.defaultCharset());
+            } catch (IOException e) {
+                // Unzipping failed. Apparently the file was not zipped.
+                index = IOUtils.toString(byteArray, null);
             }
         }
         return index;
