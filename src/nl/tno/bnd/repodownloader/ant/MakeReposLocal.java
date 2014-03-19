@@ -155,7 +155,7 @@ public class MakeReposLocal extends Task {
 
                 while ((line = br.readLine()) != null) {
                     Matcher matcher = pattern.matcher(line);
-                    if (matcher.matches()) {
+                    if (matcher.matches() && !line.trim().startsWith("#")) {
                         String name = matcher.group(1);
                         String indexUrl = matcher.group(2);
                         res.add(new Repo(outDir, name, indexUrl, full, skip));
