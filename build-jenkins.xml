@@ -158,7 +158,7 @@
 		<delete dir="${felix}/fpai_bundles" />
 		<mkdir dir="${felix}/fpai_bundles" />
 
-		<get dest="${felix}/base_bundles/org.apache.felix.main-4.2.1.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.2.1.jar" />
+		<get dest="${felix}/org.apache.felix.main.jar" src="http://apache.proserve.nl/felix/org.apache.felix.main-4.4.0.jar" />
 		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo" gzipped="true" outDir="${felix}/base_bundles" full="false" />
 		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd" skip="ext-repo|${repositories.skip}" outDir="${felix}/fpai_bundles" full="false" />
 		<antcall target="deployment-extras" />
@@ -185,7 +185,7 @@ start "${project.title}" java ^
       -Dfelix.config.properties=file:etc/config.properties ^
       -Dfelix.cm.dir="%CD%\config" ^
       -Dlogback.configurationFile=etc/logback.xml ^
-      -jar base_bundles/org.apache.felix.main-4.2.1.jar
+      -jar org.apache.felix.main.jar
 		</echo>
 		<echo file="${felix}/run.sh">
 #!/bin/bash
@@ -196,7 +196,7 @@ java \
       -Dfelix.config.properties=file:etc/config.properties \
       -Dfelix.cm.dir="`pwd`/config" \
       -Dlogback.configurationFile=etc/logback.xml \
-      -jar base_bundles/org.apache.felix.main-4.2.1.jar
+      -jar org.apache.felix.main.jar
 		</echo>
 		<chmod perm="0755" file="${felix}/run.sh" />
 
