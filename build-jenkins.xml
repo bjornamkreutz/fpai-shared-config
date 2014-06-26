@@ -273,7 +273,7 @@ java \
 		<antcall target="distribute" />
 	</target>
 
-	<target name="really-do-release">
+	<target name="do-release">
 		<property name="version" value="${targetversion}" />
 		<antcall target="distribute" />
 	</target>
