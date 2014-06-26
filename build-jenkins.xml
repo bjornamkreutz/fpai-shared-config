@@ -136,7 +136,7 @@
 		<delete dir="${baseDir}/${version}/javadoc" />
 		<mkdir dir="${baseDir}/${version}/javadoc" />
 		<javadoc encoding="UTF-8" destdir="${baseDir}/${version}/javadoc" windowtitle="${project.title}">
-			<classpath location="${workspacedir}/cnf.shared/bnd/biz.aQute.bnd-2.1.0.jar" />
+			<classpath location="${workspacedir}/cnf.shared/bnd/biz.aQute.bnd-2.4.0.jar" />
 			<fileset refid="javadoc_files" />
 		</javadoc>
 	</target>
