@@ -27,7 +27,7 @@
 		<condition property="releasedir" value="C:\temp\releases">
 			<os family="windows" />
 		</condition>
-		<condition property="releasedir" value="/var/www/html/releases">
+		<condition property="releasedir" value="/tmp/releases">
 			<os family="unix" />
 		</condition>
 		<fail unless="releasedir">No release directory can be configured for this OS!</fail>
@@ -268,13 +268,8 @@ java \
 	</target>
 
 	<target name="snapshot">
-		<property name="version" value="${targetversion}-SNAPSHOT" />
-		<antcall target="distribute" />
-	</target>
-
-	<target name="nightly">
 		<tstamp />
-		<property name="version" value="${targetversion}-${DSTAMP}-NIGHTLY" />
+		<property name="version" value="${targetversion}-${DSTAMP}-SNAPSHOT" />
 		<antcall target="distribute" />
 	</target>
 
