@@ -27,7 +27,7 @@
 		<condition property="releasedir" value="C:\temp\releases">
 			<os family="windows" />
 		</condition>
-		<condition property="releasedir" value="/tmp/releases">
+		<condition property="releasedir" value="/var/www/html/releases">
 			<os family="unix" />
 		</condition>
 		<fail unless="releasedir">No release directory can be configured for this OS!</fail>
