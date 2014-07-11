@@ -24,8 +24,16 @@
 		<fail unless="project.title"
 			message="Missing the 'project.title' parameter, should the target be called directly?" />
 
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+			<classpath>
+				<pathelement location="${workspacedir}/cnf.shared/lib/ant-contrib.jar" />
+			</classpath>
+		</taskdef>
+
 		<property environment="env" />
-		<condition property="gitbranch" value="${env.GIT_BRANCH}"
+		<propertyregex property="gitbranchstripped" input="${env.GIT_BRANCH}"
+			regexp=".*/(.*)" select="\1" casesensitive="true" />
+		<condition property="gitbranch" value="${gitbranchstripped}"
 			else="unknownbranch">
 			<isset property="env.GIT_BRANCH" />
 		</condition>
@@ -39,7 +47,8 @@
 		<fail unless="releasedir">No release directory can be configured for this OS!
 		</fail>
 
-		<property name="baseDir" value="${releasedir}/${ant.project.name}/${gitbranch}" />
+		<property name="baseDir"
+			value="${releasedir}/${ant.project.name}/${gitbranch}" />
 
 		<taskdef resource="nl/tno/bnd/repodownloader/ant/taskdef.properties"
 			classpath="${workspacedir}/cnf.shared/tools/repo-downloader.jar" />
