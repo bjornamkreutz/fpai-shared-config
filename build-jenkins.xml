@@ -324,7 +324,7 @@ Releases will be distributed in the following derictory sturcture
 	<target name="snapshot" depends="init">
 		<tstamp />
 		<property name="version" value="${targetversion}-${DSTAMP}" />
-		<property name="builddir" value="${releasedir}/${ant.project.name}/snapshots/${gitbranch}/${targetversion}" />
+		<property name="builddir" value="${releasedir}/${ant.project.name}/snapshots/${gitbranch}/${version}" />
 		<antcall target="distribute" />
 	</target>
 
