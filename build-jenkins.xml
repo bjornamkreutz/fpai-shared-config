@@ -324,6 +324,7 @@
 		<property name="builddir"
 			value="${releasedir}/${ant.project.name}/snapshots/${gitbranch}/${targetversion}-${DSTAMP}" />
 		<antcall target="distribute" />
+		<symlink link="${releasedir}/${ant.project.name}/snapshots/${gitbranch}/${targetversion}-LATEST-SNAPSHOT" resource="${builddir}" overwrite="true" failonerror="false"/>
 	</target>
 
 	<target name="do-release" depends="init">
