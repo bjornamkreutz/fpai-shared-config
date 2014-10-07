@@ -195,11 +195,9 @@
 		<mkdir dir="${felix}/fpai_bundles" />
 
 		<get dest="${felix}/org.apache.felix.main.jar"
-			src="http://apache.proserve.nl/felix/org.apache.felix.main-4.4.0.jar" />
-		<repodownload repository="http://openemf.labsgn.tno.nl/ext-repo"
-			gzipped="true" outDir="${felix}/base_bundles" full="false" />
+			src="http://apache.proserve.nl/felix/org.apache.felix.main-4.4.1.jar" />
 		<repodownload bndFile="${workspacedir}/cnf/ext/repositories.bnd"
-			skip="ext-repo|${repositories.skip}" outDir="${felix}/fpai_bundles"
+			skip="${repositories.skip}" outDir="${felix}/fpai_bundles"
 			full="false" />
 		<antcall target="deployment-extras" />
 
